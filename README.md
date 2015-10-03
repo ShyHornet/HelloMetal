@@ -1,8 +1,11 @@
 iOS9在MetalKit中新增了MetalPerformanceShaders类，可以使用GPU进行高效的图像计算，比如高斯模糊，图像直方图计算，索贝尔边缘检测算法等。我最近刚开始学习Metal的使用，并做了一个高斯模糊的例子作为"HelloWorld"程序,下面分享一下我的学习成果~
 ####注意:运行该程序需要有一个系统版本为iOS9的iOS设备，因为Metal只能在真机上运行。
+
 首先建立工程:
+
 ![屏幕快照 2015-10-03 上午10.54.16.png](http://upload-images.jianshu.io/upload_images/727794-d6391af06e604956.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 在`ViewContoller.swift`文件中导入需要的`framework`:
+
 ```swift
 import MetalKit
 import MetalPerformanceShaders
@@ -14,26 +17,35 @@ import MetalPerformanceShaders
 只要拖到工程文件夹中就可以了，不需要拖入`Assets.xcassets`中:
 
 ![屏幕快照 2015-10-03 上午11.05.07.png](http://upload-images.jianshu.io/upload_images/727794-10146f32805302b3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 打开`Main.storyboard`,拖一个`UISlider`进去，这个用来控制高斯模糊的半径。
 最大值设为100:
+
 ![屏幕快照 2015-10-03 上午11.08.04.png](http://upload-images.jianshu.io/upload_images/727794-e1d558b42dfe2f66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240) 
+
 设置好约束:
 
 ![屏幕快照 2015-10-03 上午11.09.22.png](http://upload-images.jianshu.io/upload_images/727794-5190a07339bb29e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 ![屏幕快照 2015-10-03 上午11.09.36.png](http://upload-images.jianshu.io/upload_images/727794-d7c24b1cd575e3fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 ![屏幕快照 2015-10-03 上午11.09.50.png](http://upload-images.jianshu.io/upload_images/727794-367de0dfa8023e2a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 最后类似于这样:
 
 ![屏幕快照 2015-10-03 上午11.10.49.png](http://upload-images.jianshu.io/upload_images/727794-5976c9c64c2825aa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 向`ViewContoller.swift`文件中拖一个outlet,用来获取模糊半径:
 
 ![屏幕快照 2015-10-03 上午11.13.57.png](http://upload-images.jianshu.io/upload_images/727794-e1ee6cfd441aa666.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 还有一个`valueChanged`的监控方法，用来实时改变模糊效果:
 
 ![屏幕快照 2015-10-03 上午11.14.26.png](http://upload-images.jianshu.io/upload_images/727794-3250b19a477b65fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 背景设置为黑色:
 
 ![屏幕快照 2015-10-03 下午2.51.24.png](http://upload-images.jianshu.io/upload_images/727794-9aa5f34d1f41d8b9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 然后开始配置我们Metal代码,首先了解一下`MetalPerformanceShaders`的使用流程：
  1. 配置`MTKView`用来承载模糊的结果
  2. 为`MTKView`创建新的命令队列`MTLCommandQueue`
@@ -52,13 +64,14 @@ import MetalPerformanceShaders
     
 ```
 使`ViewController`遵循`MTKViewDelegate`协议:
-```
+
+```swift
 class ViewController: UIViewController,MTKViewDelegate{
 .........
 }
 ```
 实现它的两个代理方法:
-```
+```swift
   func drawInMTKView(view: MTKView) {
         
     }
@@ -103,7 +116,7 @@ class ViewController: UIViewController,MTKViewDelegate{
     }
 ```
 新建一个方法` func loadAssets()`,用来加载资源数据等操作:
-```
+```swift
  func loadAssets() {
         // 创建新的命令队列
         commandQueue = metalView.device!.newCommandQueue()
@@ -134,7 +147,7 @@ class ViewController: UIViewController,MTKViewDelegate{
 
 ```
 这里我们自定义了一个`UIImage`的类方法,在`UIImage`的`extension`中添加这个方法:
-```
+```swift
 extension UIImage{
     
     class func scaleToSize(image:UIImage,size:CGSize)->UIImage{
@@ -177,7 +190,7 @@ extension UIImage{
     }
 ```
 我们在每次滑块滑动后重新绘制`metalView`:
-```
+```swift
 @IBAction func blurRadiusDidChanged(sender: UISlider) {
         metalView.setNeedsDisplay()
     }
@@ -185,4 +198,5 @@ extension UIImage{
 然后应该就可以运行了~结果如下:
 
 ![运行结果](http://upload-images.jianshu.io/upload_images/727794-6733bccd6aef2b46.gif?imageMogr2/auto-orient/strip)
+
 当然真机效果比这个要好很多，插上手机亲自试一下吧~
